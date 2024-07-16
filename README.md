@@ -1,17 +1,9 @@
-# cmakeSetup
+# lowest level dungeon
 
----
-
-## What is it?
-
-This is a CMake setup that loads glfw, OpenGL, stb_image, stb_truetype, and a custom 2d library. It works both on Windows and Linux.
-
-## Why use cmakeSetup?
-
-All I do is configure the project in a good way. It is cross-platform, easy to add libraries, and the input and window opening are implemented. All the rest is up to you, with no weird abstractions, you get the init() update(), and close() functions and you do whatever you want with them.
+## community game from the Low Level Game Dev community
 
 
-![](https://github.com/meemknight/photos/blob/master/cmakeSetup1.png)
+
 ---
 
   [FULL EXAMPLE VIDEO!](https://www.youtube.com/watch?v=zJoXMfCI9LM)
@@ -61,3 +53,37 @@ After you add a file, the changes should be automatically added but if you want 
 # IMPORTANT!
   To ship the game: 
   In Cmakelists.txt, set the PRODUCTION_BUILD flag to ON to build a shippable version of your game. This will change the file paths to be relative to your exe (RESOURCES_PATH macro), will remove the console, and also will change the aserts to not allow people to debug them. To make sure the changes take effect I recommend deleting the out folder to make a new clean build!
+
+
+# Coding Guides !!!
+
+	
+	- Keep the code procedural and data oriented. 
+	
+	- Try to use CamelCase, and FULL_CAPS_WITH_UNDERSCORE for constants.
+	
+	- Classes start with capital letter.
+	
+	- Use structs rather than classes.
+
+	- Use the provided assertion function to safeguard your code. (permaassert / permaassertcomment)
+
+	- Objects shouldn't use desctructors, rather init and clear methods.
+
+	- Preffer functions rather than objects, create objects if it makes sense (you need to save some data)
+
+	- Systems will probably be objects, if so, pass them around by refference.
+
+	- You should add stuff in the gameLayer folders, not platform folders. And you probably shouldn't touch anything in the playform folders.
+
+	- Put the files like game textures in the resources folder, to reffer to them always use the RESOURCES_PATH macro_
+
+	- Use #pragma region to structure the code better
+
+	- The entry point is main.cpp (the real one is glfwMain.cpp but you shouldn't make changes there)
+
+	- Use todos in the code, and also put your name when you use them. EG //todo (LLGD): add minecraft S*X update
+
+	- The ingame size of a tile is 1
+
+	- A box is stored in a vec4 and works like this: {X, Y, Width, Height}, this includes player position box, and rendering things

@@ -17,7 +17,7 @@ bool GameLogic::update(float deltaTime,
 	gl2d::Renderer2D &renderer,
 	AssetsManager &assetsManager)
 {
-
+	bool exitDungeon = false;
 
 #pragma region imgui
 	//ImGui::ShowDemoWindow();
@@ -28,7 +28,7 @@ bool GameLogic::update(float deltaTime,
 
 	if (ImGui::Button("Exit"))
 	{
-		return 0;
+		exitDungeon = true;
 	}
 
 	ImGui::End();
@@ -83,7 +83,7 @@ bool GameLogic::update(float deltaTime,
 
 
 	renderer.flush();
-	return true;
+	return !exitDungeon;
 }
 
 void GameLogic::close()

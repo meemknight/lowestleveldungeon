@@ -2,20 +2,42 @@
 #include <map.h>
 #include <imgui.h>
 #include <platform/platformInput.h>
+#include <filesystem>
+
+bool GameState::saveGameState(const GameState& state, const std::string& filename) {
+	std::ofstream outFile(filename, std::ios::binary);
+	if (!outFile.is_open()) {
+		std::cerr << "Failed to open file for saving." << std::endl;
+		return false;
+	}
+	std::cout << "Current Working Directory: " << std::filesystem::current_path() << std::endl;
+	outFile.write(reinterpret_cast<const char*>(&state), sizeof(GameState));
+	outFile.close();
+	return true;
+}
+
+bool GameState::loadGameState(GameState& state, const std::string& filename) {
+	std::ifstream inFile(filename, std::ios::binary);
+	if (!inFile.is_open()) {
+		std::cerr << "Failed to open file for loading." << std::endl;
+		return false;
+	}
+	inFile.read(reinterpret_cast<char*>(&state), sizeof(GameState));
+	inFile.close();
+	return true;
+}
+
 
 
 bool GameLogic::init()
 {
-	
 	map.create();
-
-
 	return true;
 }
 
 bool GameLogic::update(float deltaTime,
 	gl2d::Renderer2D &renderer,
-	AssetsManager &assetsManager)
+	AssetsManager &assetsManager, GameState &state)
 {
 	bool exitDungeon = false;
 
@@ -80,8 +102,9 @@ bool GameLogic::update(float deltaTime,
 
 	renderer.renderRectangle(player.getAABB(), Colors_Red);
 
-
-
+	state.playerPosition = player.pos;
+	state.zoomSaved = zoom;
+	
 	renderer.flush();
 	return !exitDungeon;
 }

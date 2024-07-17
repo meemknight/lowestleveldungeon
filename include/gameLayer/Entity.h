@@ -5,7 +5,7 @@
 struct Entity
 {
 	//top left corner!!
-	glm::vec2 pos = {};
+	glm::vec2 pos;
 
 	//last position is used to calculate colisions
 	glm::vec2 lastPos = {};

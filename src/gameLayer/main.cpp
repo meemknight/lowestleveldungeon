@@ -11,14 +11,17 @@
 #include <gl2d/gl2d.h>
 #include <gameLogic.h>
 #include <glui/glui.h>
+#include <fstream>
 
 static gl2d::Renderer2D renderer;
 static GameLogic game;
 static AssetsManager assetsManager;
 static glui::RendererUi uirenderer;
+static GameState gameState; //Handles file management
 
 //todo (LLGD): you will change this... :))
 static bool inGame = 0;
+
 
 bool initGame()
 {
@@ -44,16 +47,15 @@ bool gameLogic(float deltaTime)
 
 	renderer.updateWindowMetrics(w, h);
 #pragma endregion
-
+	
 
 	if (inGame)
 	{
 
-		if (!game.update(deltaTime, 
-			renderer, assetsManager))
-		{
+		if (!game.update(deltaTime, renderer, assetsManager, gameState)) {
 			game.close();
 			inGame = 0;
+			gameState.saveGameState(gameState, "savegame.dat");  // Save game state when game closes
 		}
 
 	}
@@ -69,20 +71,32 @@ bool gameLogic(float deltaTime)
 		{
 			inGame = true;
 			game.init();
+	
 
+		}
+		if (uirenderer.Button("Exit", Colors_Red, {})) {
+			return false; //Exit
 		}
 
 		uirenderer.BeginMenu("Load game...", Colors_White, {});
-		{
-			uirenderer.Text("Ther's nothing here :((", Colors_White);
+		if (uirenderer.Button("Save 1", Colors_Green, {})) {
+			if (gameState.loadGameState(gameState, "savegame.dat")) {
+				inGame = true;
+				game.init();
+				
+	
 
-
+			}
+			else {
+				uirenderer.Text("There's nothing here :((", Colors_Red);
+				
+			}
 		}
-		uirenderer.EndMenu();
-
-		uirenderer.End();
-
-
+		
+			uirenderer.EndMenu();
+			uirenderer.End();
+		
+		
 		uirenderer.renderFrame(renderer, assetsManager.font, 
 			platform::getRelMousePosition(),
 			platform::isLMousePressed(), 
@@ -103,9 +117,5 @@ bool gameLogic(float deltaTime)
 
 }
 
-//This function might not be be called if the program is forced closed
-void closeGame()
-{
+void closeGame() {}
 
-
-}

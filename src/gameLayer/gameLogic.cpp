@@ -3,13 +3,11 @@
 #include <imgui.h>
 #include <platform/platformInput.h>
 #include <filesystem>
+#include <cassert>
 
 bool GameState::saveGameState(const GameState& state, const std::string& filename) {
 	std::ofstream outFile(filename, std::ios::binary);
-	if (!outFile.is_open()) {
-		std::cerr << "Failed to open file for saving." << std::endl;
-		return false;
-	}
+	permaAssertComment(outFile.is_open(), "Failed to save file!"); //terminate if file cannot be saved
 	std::cout << "Current Working Directory: " << std::filesystem::current_path() << std::endl;
 	outFile.write(reinterpret_cast<const char*>(&state), sizeof(GameState));
 	outFile.close();
@@ -18,10 +16,7 @@ bool GameState::saveGameState(const GameState& state, const std::string& filenam
 
 bool GameState::loadGameState(GameState& state, const std::string& filename) {
 	std::ifstream inFile(filename, std::ios::binary);
-	if (!inFile.is_open()) {
-		std::cerr << "Failed to open file for loading." << std::endl;
-		return false;
-	}
+	permaAssertComment(inFile.is_open(), "Failed to load file!"); //terminate if file cannot load
 	inFile.read(reinterpret_cast<char*>(&state), sizeof(GameState));
 	inFile.close();
 	return true;

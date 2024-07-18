@@ -12,15 +12,19 @@
 #include <gameLogic.h>
 #include <glui/glui.h>
 #include <fstream>
+#include <filesystem>
 
 static gl2d::Renderer2D renderer;
 static GameLogic game;
 static AssetsManager assetsManager;
 static glui::RendererUi uirenderer;
 static GameState gameState; //Handles file management
+const gl2d::Texture Button{ "/ resource / map / Damp Dungeon Tileset.png" };
 
 //todo (LLGD): you will change this... :))
 static bool inGame = 0;
+static bool checkFile = 0;
+
 
 
 bool initGame()
@@ -28,7 +32,6 @@ bool initGame()
 
 	renderer.create();
 	uirenderer.SetAlignModeFixedSizeWidgets({0,150});
-
 	assetsManager.loadAllAssets();
 
 	return true;
@@ -51,11 +54,18 @@ bool gameLogic(float deltaTime)
 
 	if (inGame)
 	{
+		if (!checkFile) { //Check the filesystem is working correctly before the user plays
+			permaAssertComment(gameState.saveGameState(gameState, "savegame.dat"), "Failed to save file!");  // Initially try to save file.
+			checkFile = 1;
+		}
+
 
 		if (!game.update(deltaTime, renderer, assetsManager, gameState)) {
 			game.close();
 			inGame = 0;
-			gameState.saveGameState(gameState, "savegame.dat");  // Save game state when game closes
+			gameState.saveGameState(gameState, "savegame.dat");// Save game state when game closes
+			permaAssertComment(std::filesystem::exists("savegame.dat"), "Failed to save game file!");
+			//if the save fails terminate the program.
 		}
 
 	}
@@ -67,31 +77,25 @@ bool gameLogic(float deltaTime)
 		uirenderer.Text("Lowest Level Dungeon XD", Colors_White);
 		
 		//todo (LLGD): add a nice texture here for the button.
-		if (uirenderer.Button("Play", Colors_White))
+		if (uirenderer.Button("Play", Colors_White, Button))
 		{
 			inGame = true;
 			game.init();
-	
-
 		}
 		if (uirenderer.Button("Exit", Colors_Red, {})) {
 			return false; //Exit
 		}
 
 		uirenderer.BeginMenu("Load game...", Colors_White, {});
-		if (uirenderer.Button("Save 1", Colors_Green, {})) {
-			if (gameState.loadGameState(gameState, "savegame.dat")) {
+		if (std::filesystem::exists("savegame.dat")) {
+			if (uirenderer.Button("Save 1", Colors_Green, {})) {
+				gameState.loadGameState(gameState, "savegame.dat");
 				inGame = true;
 				game.init();
-				
-	
+			}
 
-			}
-			else {
-				uirenderer.Text("There's nothing here :((", Colors_Red);
-				
-			}
 		}
+		else uirenderer.Text("There's nothing here :((", Colors_Red);
 		
 			uirenderer.EndMenu();
 			uirenderer.End();
@@ -108,9 +112,6 @@ bool gameLogic(float deltaTime)
 		renderer.flush();
 
 	}
-
-	
-
 
 	return true;
 #pragma endregion

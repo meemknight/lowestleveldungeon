@@ -19,7 +19,6 @@ static GameLogic game;
 static AssetsManager assetsManager;
 static glui::RendererUi uirenderer;
 static GameState gameState; //Handles file management
-const gl2d::Texture Button{ "/ resource / map / Damp Dungeon Tileset.png" };
 
 //todo (LLGD): you will change this... :))
 static bool inGame = 0;
@@ -57,27 +56,25 @@ bool gameLogic(float deltaTime)
 		if (!checkFile) { //Check the filesystem is working correctly before the user plays
 			permaAssertComment(gameState.saveGameState(gameState, "savegame.dat"), "Failed to save file!");  // Initially try to save file.
 			checkFile = 1;
-		}
+			permaAssertComment(std::filesystem::exists("savegame.dat"), "Failed to save game file!");
 
+		}
 
 		if (!game.update(deltaTime, renderer, assetsManager, gameState)) {
 			game.close();
 			inGame = 0;
 			gameState.saveGameState(gameState, "savegame.dat");// Save game state when game closes
-			permaAssertComment(std::filesystem::exists("savegame.dat"), "Failed to save game file!");
 			//if the save fails terminate the program.
 		}
-
 	}
 	else
 	{
-
 		uirenderer.Begin(1);
 
 		uirenderer.Text("Lowest Level Dungeon XD", Colors_White);
 		
 		//todo (LLGD): add a nice texture here for the button.
-		if (uirenderer.Button("Play", Colors_White, Button))
+		if (uirenderer.Button("Play", Colors_White, {}))
 		{
 			inGame = true;
 			game.init();

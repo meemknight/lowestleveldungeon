@@ -11,21 +11,26 @@
 #include <gl2d/gl2d.h>
 #include <gameLogic.h>
 #include <glui/glui.h>
+#include <fstream>
+#include <filesystem>
 
 static gl2d::Renderer2D renderer;
 static GameLogic game;
 static AssetsManager assetsManager;
 static glui::RendererUi uirenderer;
+static GameState gameState; //Handles file management
 
 //todo (LLGD): you will change this... :))
 static bool inGame = 0;
+static bool checkFile = 0;
+
+
 
 bool initGame()
 {
 
 	renderer.create();
 	uirenderer.SetAlignModeFixedSizeWidgets({0,150});
-
 	assetsManager.loadAllAssets();
 
 	return true;
@@ -44,45 +49,55 @@ bool gameLogic(float deltaTime)
 
 	renderer.updateWindowMetrics(w, h);
 #pragma endregion
-
+	
 
 	if (inGame)
 	{
+		if (!checkFile) { //Check the filesystem is working correctly before the user plays
+			permaAssertComment(gameState.saveGameState(gameState, "savegame.dat"), "Failed to save file!");  // Initially try to save file.
+			checkFile = 1;
+			permaAssertComment(std::filesystem::exists("savegame.dat"), "Failed to save game file!");
 
-		if (!game.update(deltaTime, 
-			renderer, assetsManager))
-		{
-			game.close();
-			inGame = 0;
 		}
 
+		if (!game.update(deltaTime, renderer, assetsManager, gameState)) {
+			game.close();
+			inGame = 0;
+			gameState.saveGameState(gameState, "savegame.dat");// Save game state when game closes
+			//if the save fails terminate the program.
+		}
 	}
 	else
 	{
-
 		uirenderer.Begin(1);
 
 		uirenderer.Text("Lowest Level Dungeon XD", Colors_White);
 		
 		//todo (LLGD): add a nice texture here for the button.
-		if (uirenderer.Button("Play", Colors_White))
+		if (uirenderer.Button("Play", Colors_White, {}))
 		{
 			inGame = true;
 			game.init();
-
+		}
+		if (uirenderer.Button("Exit", Colors_Red, {})) {
+			return false; //Exit
 		}
 
 		uirenderer.BeginMenu("Load game...", Colors_White, {});
-		{
-			uirenderer.Text("Ther's nothing here :((", Colors_White);
-
+		if (std::filesystem::exists("savegame.dat")) {
+			if (uirenderer.Button("Save 1", Colors_Green, {})) {
+				gameState.loadGameState(gameState, "savegame.dat");
+				inGame = true;
+				game.init();
+			}
 
 		}
-		uirenderer.EndMenu();
-
-		uirenderer.End();
-
-
+		else uirenderer.Text("There's nothing here :((", Colors_Red);
+		
+			uirenderer.EndMenu();
+			uirenderer.End();
+		
+		
 		uirenderer.renderFrame(renderer, assetsManager.font, 
 			platform::getRelMousePosition(),
 			platform::isLMousePressed(), 
@@ -95,17 +110,10 @@ bool gameLogic(float deltaTime)
 
 	}
 
-	
-
-
 	return true;
 #pragma endregion
 
 }
 
-//This function might not be be called if the program is forced closed
-void closeGame()
-{
+void closeGame() {}
 
-
-}

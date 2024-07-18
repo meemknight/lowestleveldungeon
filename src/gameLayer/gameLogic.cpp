@@ -2,20 +2,37 @@
 #include <map.h>
 #include <imgui.h>
 #include <platform/platformInput.h>
+#include <filesystem>
+#include <cassert>
+
+bool GameState::saveGameState(const GameState& state, const std::string& filename) {
+	std::ofstream outFile(filename, std::ios::binary);
+	permaAssertComment(outFile.is_open(), "Failed to save file!"); //terminate if file cannot be saved
+	std::cout << "Current Working Directory: " << std::filesystem::current_path() << std::endl;
+	outFile.write(reinterpret_cast<const char*>(&state), sizeof(GameState));
+	outFile.close();
+	return true;
+}
+
+bool GameState::loadGameState(GameState& state, const std::string& filename) {
+	std::ifstream inFile(filename, std::ios::binary);
+	permaAssertComment(inFile.is_open(), "Failed to load file!"); //terminate if file cannot load
+	inFile.read(reinterpret_cast<char*>(&state), sizeof(GameState));
+	inFile.close();
+	return true;
+}
+
 
 
 bool GameLogic::init()
 {
-	
 	map.create();
-
-
 	return true;
 }
 
 bool GameLogic::update(float deltaTime,
 	gl2d::Renderer2D &renderer,
-	AssetsManager &assetsManager)
+	AssetsManager &assetsManager, GameState &state)
 {
 	bool exitDungeon = false;
 
@@ -80,8 +97,9 @@ bool GameLogic::update(float deltaTime,
 
 	renderer.renderRectangle(player.getAABB(), Colors_Red);
 
-
-
+	state.playerPosition = player.pos;
+	state.zoomSaved = zoom;
+	
 	renderer.flush();
 	return !exitDungeon;
 }

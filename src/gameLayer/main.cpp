@@ -22,6 +22,7 @@ static bool inGame = 0;
 
 bool initGame()
 {
+	
 
 	renderer.create();
 	uirenderer.SetAlignModeFixedSizeWidgets({0,150});
@@ -43,6 +44,7 @@ bool gameLogic(float deltaTime)
 	glClear(GL_COLOR_BUFFER_BIT); //clear screen
 
 	renderer.updateWindowMetrics(w, h);
+
 #pragma endregion
 
 
@@ -63,10 +65,12 @@ bool gameLogic(float deltaTime)
 		uirenderer.Begin(1);
 
 		uirenderer.Text("Lowest Level Dungeon XD", Colors_White);
+
 		
 		//todo (LLGD): add a nice texture here for the button.
 		if (uirenderer.Button("Play", Colors_White))
 		{
+
 			inGame = true;
 			game.init();
 

@@ -1994,7 +1994,14 @@ static Wave LoadFLAC(const char *fileName)
     unsigned char *fileData = LoadFileData(fileName, &fileSize);
 
     // Decode an entire FLAC file in one go
-    unsigned long long int totalSampleCount = 0;
+
+    #if defined __GNUC__ || defined __GNUG__
+        unsigned long int totalSampleCount = 0;
+    
+    #elif defined _WIN32 || defined _MSC_VER
+        unsigned long long int totalSampleCount = 0;
+    #endif
+
     wave.data = drflac_open_memory_and_read_pcm_frames_s16(fileData, fileSize, &wave.channels, &wave.sampleRate, &totalSampleCount);
 
     if (wave.data == NULL) TRACELOG(LOG_WARNING, "FILEIO: [%s] Failed to load FLAC data", fileName);
@@ -2024,7 +2031,12 @@ static Wave LoadMP3(const char *fileName)
     unsigned char *fileData = LoadFileData(fileName, &fileSize);
     
     // Decode an entire MP3 file in one go
-    unsigned long long int totalFrameCount = 0;
+    #if defined __GNUC__ || defined __GNUG__
+        unsigned long int totalFrameCount = 0;
+
+    #elif defined _WIN32 || defined _MSC_VER
+        unsigned long long int totalSampleCount = 0;
+    #endif
     drmp3_config config = { 0 };
     wave.data = drmp3_open_memory_and_read_f32(fileData, fileSize, &config, &totalFrameCount);
 

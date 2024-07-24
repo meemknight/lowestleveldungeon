@@ -10,7 +10,11 @@ struct GameLogic
 
 	Map map;
 	Entity player;
+	int density;
+	int iterations;
+	int size;
 
+	bool renderRegions=false;
 	//returns false on fail
 	bool init();
 

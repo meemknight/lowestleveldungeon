@@ -28,6 +28,8 @@ void Entity::resolveConstrains(Map &mapData)
 
 	if (distance < BLOCK_SIZE)
 	{
+		if(checkCollisions== true)
+		{
 		checkCollisionBrute(pos,
 			lastPos,
 			mapData,
@@ -36,6 +38,7 @@ void Entity::resolveConstrains(Map &mapData)
 			leftTouch,
 			rightTouch
 		);
+		}
 	}
 	else
 	{
@@ -48,6 +51,8 @@ void Entity::resolveConstrains(Map &mapData)
 		{
 			newPos += delta;
 			glm::vec2 posTest = newPos;
+			if(checkCollisions==true)
+			{
 			checkCollisionBrute(newPos,
 				lastPos,
 				mapData,
@@ -55,7 +60,7 @@ void Entity::resolveConstrains(Map &mapData)
 				downTouch,
 				leftTouch,
 				rightTouch);
-
+			}
 			if (newPos != posTest)
 			{
 				pos = newPos;
@@ -64,6 +69,8 @@ void Entity::resolveConstrains(Map &mapData)
 
 		} while (glm::length((newPos + delta) - pos) > 1.0f * BLOCK_SIZE);
 
+		if(checkCollisions==true)
+		{
 		checkCollisionBrute(pos,
 			lastPos,
 			mapData,
@@ -71,6 +78,7 @@ void Entity::resolveConstrains(Map &mapData)
 			downTouch,
 			leftTouch,
 			rightTouch);
+		}
 	}
 
 end:
@@ -84,7 +92,7 @@ end:
 	if (pos.y < 0) { pos.y = 0; }
 	if (pos.y + dimensions.y > (mapData.size.y) * BLOCK_SIZE)
 	{ pos.y = ((mapData.size.y) * BLOCK_SIZE) - dimensions.y; }
-	void;
+	
 
 }
 

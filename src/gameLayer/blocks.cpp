@@ -13,6 +13,10 @@ glm::ivec2 getBlockUV(Block block)
 		glm::ivec2{0,4}, // floor1
 		glm::ivec2{1,4}, // floor2
 		glm::ivec2{1,1}, // wall
+		glm::ivec2{0,0}, // Lava from debug tileset
+		glm::ivec2{1,0}, // water
+		glm::ivec2{0,1}, // wall edge
+		glm::ivec2{0,0}, // Barrel
 	};
 
 	//if you see an error that means you added a block but forgot to add
@@ -34,6 +38,10 @@ int getTileSetIndex(Block block)
 		TileSets::dungeonTileSet,
 		TileSets::dungeonTileSet,
 		TileSets::dungeonTileSet,
+		TileSets::debugTileSet,
+		TileSets::debugTileSet,
+		TileSets::dungeonTileSet,
+		TileSets::barrel,
 	};
 
 	//if you see an error that means you added a block but forgot to add
@@ -51,6 +59,10 @@ int isBlockColidable(Block block)
 
 	//we will create a computed goto here
 	static bool colidable[] = {
+		0,
+		0,
+		0,
+		1,
 		0,
 		0,
 		0,

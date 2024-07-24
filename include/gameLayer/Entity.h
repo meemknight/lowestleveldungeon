@@ -14,7 +14,8 @@ struct Entity
 
 	//used to display the sprite
 	bool movingRight = 0;
-
+	
+	bool checkCollisions = true;
 	void resolveConstrains(Map &mapData);
 
 

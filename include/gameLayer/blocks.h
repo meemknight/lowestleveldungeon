@@ -12,6 +12,10 @@ namespace Blocks
 		floor1,
 		floor2,
 		wall_front_down,
+		lava,
+		water,
+		wall_edge,
+		barrel,
 		BLOCKS_COUNT
 
 	};
@@ -25,6 +29,8 @@ namespace TileSets
 	{
 		none = 0,
 		dungeonTileSet,
+		debugTileSet,
+		barrel,
 		TILE_SETS_COUNT
 	};
 }

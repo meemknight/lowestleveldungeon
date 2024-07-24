@@ -145,6 +145,7 @@ namespace gl2d
 #define Colors_Transparent (gl2d::Color4f{ 0,0,0,0 })
 
 #pragma endregion
+	
 
 	///////////////////// MATH ////////////////////
 #pragma region math

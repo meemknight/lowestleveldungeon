@@ -6,8 +6,8 @@
 
 bool GameLogic::init()
 {
-	
-	map.create();
+	density=58; iterations=8; size=100;
+	map.create(density,iterations, size);
 
 
 	return true;
@@ -25,7 +25,21 @@ bool GameLogic::update(float deltaTime,
 
 	ImGui::DragFloat2("Position", &player.pos[0]);
 	ImGui::DragFloat("zoom", &zoom);
-
+	ImGui::SliderInt("Density", &density, 0, 100);
+	ImGui::SliderInt("Iterations", &iterations, 0, 20);
+	ImGui::SliderInt("Size", &size, 0, 1000);
+	if (ImGui::Button("Regenerate Map"))
+	{
+		map.create(density,iterations,size);
+	}
+	if (ImGui::Button(player.checkCollisions ? "COLLISION ON" : "COLLISION OFF"))
+    {
+        player.checkCollisions = !player.checkCollisions;  // Toggle the state
+    }
+    if(ImGui::Button(renderRegions ? "Render Tiles": "Render Regions"))
+    {
+    	renderRegions= !renderRegions;
+    }
 	if (ImGui::Button("Exit"))
 	{
 		exitDungeon = true;
@@ -76,8 +90,14 @@ bool GameLogic::update(float deltaTime,
 		renderer.windowW, renderer.windowH);
 
 
+	if(!renderRegions)
+	{
 	map.renderMap(renderer, assetsManager);
-
+	}
+	else
+	{	
+	map.renderRegions(renderer);
+	}
 	renderer.renderRectangle(player.getAABB(), Colors_Red);
 
 

@@ -13,7 +13,6 @@ struct GameLogic
 	int density;
 	int iterations;
 	int size;
-
 	bool renderRegions=false;
 	//returns false on fail
 	bool init();

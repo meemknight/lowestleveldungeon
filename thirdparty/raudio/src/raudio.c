@@ -2035,7 +2035,7 @@ static Wave LoadMP3(const char *fileName)
         unsigned long int totalFrameCount = 0;
 
     #elif defined _WIN32 || defined _MSC_VER
-        unsigned long long int totalSampleCount = 0;
+        unsigned long long int totalFrameCount = 0;
     #endif
     drmp3_config config = { 0 };
     wave.data = drmp3_open_memory_and_read_f32(fileData, fileSize, &config, &totalFrameCount);

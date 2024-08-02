@@ -32,6 +32,8 @@
 //set GL2D_SIMD to 0 if it doesn't work on your platform
 #ifdef _WIN32
 #define GL2D_SIMD 1
+// #elif defined(__linux__)
+// #define GL2D_SIMD 1
 #else
 #define GL2D_SIMD 0
 #endif

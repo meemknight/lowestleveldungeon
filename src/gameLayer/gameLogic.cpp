@@ -30,6 +30,7 @@ bool GameLogic::update(float deltaTime,
 	ImGui::SliderInt("Size", &size, 0, 1000);
 	if (ImGui::Button("Regenerate Map"))
 	{
+		map.clear();
 		map.create(density,iterations,size);
 	}
 	if (ImGui::Button(player.checkCollisions ? "COLLISION ON" : "COLLISION OFF"))
@@ -89,7 +90,7 @@ bool GameLogic::update(float deltaTime,
 		deltaTime * 4.f, 0.01, 0.5,
 		renderer.windowW, renderer.windowH);
 
-
+	renderer.clearScreen({10.0f/255.0f,17.0f/255.0f,29.0f/255.0f, 10.0f});
 	if(!renderRegions)
 	{
 	map.renderMap(renderer, assetsManager);
@@ -103,6 +104,7 @@ bool GameLogic::update(float deltaTime,
 
 
 	renderer.flush();
+
 	return !exitDungeon;
 }
 

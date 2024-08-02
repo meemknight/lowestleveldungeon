@@ -2,6 +2,14 @@
 
 gl2d::Color4f colorArray[] = {Colors_Red, Colors_Green, Colors_Blue, Colors_White, Colors_Yellow, Colors_Magenta, Colors_Turqoise, Colors_Orange,Colors_Purple, Colors_Gray};
 
+void Map::clear()
+{
+	blocks.clear();
+	visitedTile.clear();
+	wallEdges.clear();
+	blocksRotation.clear();
+	regions.clear();
+}
 void Map::create(int density, int iterations,int s)
 {
 	*this = {};
@@ -11,7 +19,8 @@ void Map::create(int density, int iterations,int s)
 
 	blocks.resize(s * s);
 	visitedTile.resize(s*s);
-	
+	wallEdges.resize(s * s);
+	blocksRotation.resize(s * s);
 	size = {s,s};
 
  	this->randomNoiseMap(density);
@@ -36,10 +45,9 @@ void Map::create(int density, int iterations,int s)
  		{	
  				regions.resize(regions.size()+1);
  				getRegion(*floorTiles.begin() );
- 				randomNoiseFluids(70,60);
+ 				randomNoiseFluids(70,70);
  		 		//regions.push_back( getRegion(*floorTiles.begin() ));
  		 }
- 		cellularAutomatonEnv();
  		 //floorTiles.erase(floorTiles.begin());
 
 
@@ -65,7 +73,7 @@ void Map::create(int density, int iterations,int s)
 	// getBlockUnsafe(5, 6) = Blocks::wall_front_down;
 	// getBlockUnsafe(6, 6) = Blocks::wall_front_down;
 	// getBlockUnsafe(6, 7) = Blocks::wall_front_down;
-	// getBlockUnsafe(1, 2) = Blocks::wall_front_down;
+	/// getBlockUnsafe(1, 2) = Blocks::wall_front_down;
 }
 
 Block &Map::getBlockUnsafe(int x, int y)
@@ -118,20 +126,85 @@ void Map::renderMap(gl2d::Renderer2D &renderer,
 				auto uv = getBlockUV(b);
 
 				auto tile = assetManager.tileSets[tileSet];
-
+				
 				if (tile.texture.id)
 				{
+			
+
+		
+					if(b!= Blocks::wall_edge_X_axis && b!= Blocks::wall_edge_Y_axis&& b!= Blocks::wall_edge_wall_both)
+					{
 					renderer.renderRectangle({x,y,1,1},
 						 tile.texture,
 						 Colors_White,
 						{},
-						0,
+						blocksRotation[x+y*size.x],
 						 tile.atlas.get(uv.x, uv.y)
 						);
+
+					}
+					
 					//renderer.renderRectangle({x,y,1,1}, Colors_White);
 				}
+				else
+					{		
+							tileSet = getTileSetIndex(1);
+							tile = assetManager.tileSets[tileSet];
+							
+								//renderer.renderRectangle({x,y,1,1}, Colors_Green);
+								glm::ivec2 uv_r, uv_l;
+
+								if(b== Blocks::wall_edge_X_axis)
+								{
+									uv_r = getBlockUV(Blocks::wall_edge_right); // b
+									uv_l = getBlockUV(Blocks::wall_edge_left);	 // b
+								}
+								if(b== Blocks::wall_edge_wall_both)
+								{
+									
+									uv_r = getBlockUV(Blocks::wall_edge_wall_right); // b
+									uv_l = getBlockUV(Blocks::wall_edge_wall_left);	 // b
+								}
+							
+										renderer.renderRectangle({x,y,1,1},
+											 tile.texture,
+											 Colors_White,
+											{},
+											0,
+											 tile.atlas.get(uv_r.x, uv_r.y)
+											);
+										renderer.renderRectangle({x,y,1,1},
+											 tile.texture,
+											 Colors_White,
+											{},
+											0,
+											 tile.atlas.get(uv_l.x,uv_l.y)
+											);
+										
+									
+								
+					}
+				// if(wallEdges[x + y * size.x]== Blocks::wall_edge)
+				// {
+				// 	float rotation =0;
+
+				// 	auto edgetile = assetManager.tileSets[1];
+				// 	if (edgetile.texture.id)
+				// 		{
+				// 			renderer.renderRectangle({x,y,1,1},
+				// 				 edgetile.texture,
+				// 				 Colors_White,
+				// 				{},
+				// 				0,
+				// 				 edgetile.atlas.get(0, 1)
+				// 				);
+				// 			//renderer.renderRectangle({x,y,1,1}, Colors_White);
+				// 		}
+				//}
+				
 
 			};
+			
 
 		}
 
@@ -155,7 +228,7 @@ void Map::randomNoiseMap(int density)
             if (random_number > density) {
                 blocks[x + y * size.x] = Blocks::floor2;
             } else {
-              blocks[x + y * size.x] = Blocks::wall_front_down;
+              blocks[x + y * size.x] = Blocks::inner_wall;
             }
         }
     }
@@ -170,7 +243,12 @@ void Map::randomNoiseFluids(int chance, int density)
 		{
 			 for (int x = 0; x <currRegion->tiles.size(); x++) {
 	
-
+					//may not need this if block
+			 		if(blocks[currRegion->tiles[x].x + currRegion->tiles[x].y * size.x] == Blocks::inner_wall ||
+			 			blocks[currRegion->tiles[x].x + currRegion->tiles[x].y * size.x] == Blocks::wall_front_down)
+			 		{
+			 			continue;
+			 		}
 		            int random_number = rand() % 100;
 		            if (random_number > density) {
 
@@ -178,46 +256,12 @@ void Map::randomNoiseFluids(int chance, int density)
 		            	blocks[currRegion->tiles[x].x + currRegion->tiles[x].y * size.x] = Blocks::lava;
 		            } else {
 		            
-		            	blocks[currRegion->tiles[x].x + currRegion->tiles[x].y * size.x] = Blocks::floor2;
+		            //	blocks[currRegion->tiles[x].x + currRegion->tiles[x].y * size.x] = Blocks::floor2;
 		            }
 		        
 		    }
 
 	    }
-}
-
-void Map::cellularAutomatonEnv()
-{
-	std::vector<Block> temp_blocks;
-	for(uint x=0; x<3; x++)
-	{	
-		temp_blocks = blocks;
-
-		for(int y=0; y< size.y; y++)
-		{
-			for(int x=0; x<size.x; x++)
-			{
-				if(blocks[y+x * size.x] != Blocks::wall_front_down)
-				{
-				uint neighbor_wall_count = this->getNeighbourTiles(temp_blocks,x,y);
-
-				
-				if( neighbor_wall_count >4)
-				{
-					blocks[y+x * size.x] = Blocks::floor2;
-
-				}
-				else
-				{	
-					blocks[y+x * size.x] = Blocks::lava;
-
-			
-				}
-				}
-			}
-		}
-	}
-
 }
 
 
@@ -237,7 +281,7 @@ void Map::cellularAutomaton(int iterations)
 				
 				if( neighbor_wall_count >4)
 				{
-					blocks[y+x * size.x] = Blocks::wall_front_down;
+					blocks[y+x * size.x] = Blocks::inner_wall;
 
 				}
 				else
@@ -265,7 +309,7 @@ uint Map::getNeighbourWalls(std::vector<Block>& temp_blocks, int x, int y)
 							if(b!=y || a!=x)
 							{
 								
-								if(temp_blocks[b + a * size.x] == Blocks::wall_front_down)
+								if(temp_blocks[b + a * size.x] == Blocks::wall_front_down || temp_blocks[b + a * size.x] == Blocks::inner_wall)
 								{
 									walls++;
 								}
@@ -295,7 +339,15 @@ uint Map::getNeighbourTiles(std::vector<Block>& temp_blocks, int x, int y)
 							if(b!=y || a!=x)
 							{
 								
-								if(temp_blocks[b + a * size.x] != Blocks::lava)
+								if((temp_blocks[b + a * size.x] != Blocks::lava) && (temp_blocks[b + a * size.x] != Blocks::wall_front_down 
+																					|| temp_blocks[b + a * size.x] != Blocks::inner_wall 
+																					|| blocks[y+x * size.x] != Blocks::wall_left_corner ||
+																					 blocks[y+x * size.x] != Blocks::wall_edge_left
+																					|| blocks[y+x * size.x] !=Blocks::wall_front_up ||
+																					 blocks[y+x * size.x] !=Blocks::wall_edge_front	
+																					 || blocks[y+x * size.x] !=Blocks::wall_edge_X_axis
+																					|| blocks[y+x * size.x] !=Blocks::wall_edge_right
+																					))
 								{
 									walls++;
 								}
@@ -351,17 +403,164 @@ void Map:: getRegionTiles(glm::ivec2 pos, glm::ivec2 lastPos, Block tileType)
   
        		size_t lastFloorIdx = std::distance(regions[regions.size()-1].tiles.begin(), it);
        	
-
+       		//getRegionTiles({pos.x - 1, pos.y},regions[regions.size()-1].tiles[lastFloorIdx], tileType); 
 			getRegionTiles({pos.x, pos.y - 1}, regions[regions.size()-1].tiles[lastFloorIdx], tileType); // for the tile above
 			getRegionTiles({pos.x, pos.y + 1},regions[regions.size()-1].tiles[lastFloorIdx], tileType); // for the tile below
+			getRegionTiles({pos.x - 1, pos.y},regions[regions.size()-1].tiles[lastFloorIdx], tileType); 
 			getRegionTiles({pos.x + 1, pos.y},regions[regions.size()-1].tiles[lastFloorIdx], tileType); // for the tile to the right
-			getRegionTiles({pos.x - 1, pos.y},regions[regions.size()-1].tiles[lastFloorIdx], tileType); 			
+						
 		}
 		else
-		{
-			if(blocks[pos.x + pos.y * size.x] != tileType)
+		{	
+
+			if(blocks[pos.x + pos.y * size.x] !=tileType) // meaning it is a wall
 			{
 				regions[regions.size()-1].edgeTiles.push_back(lastPos);  //sets  the tile in the previous iteration / call as an edge tile because the current one is not floor
+				
+				if(pos.x - lastPos.x <0 && pos.x>=0)
+				{
+					if(blocks[pos.x + pos.y * size.x] == Blocks::inner_wall)
+					{
+
+						blocks[pos.x + pos.y * size.x] = Blocks::wall_edge_left;
+					}
+					else if(blocks[pos.x + pos.y * size.x] == Blocks::wall_edge_front)
+					{
+						blocks[pos.x + pos.y * size.x] =Blocks::wall_edge_corner_r;
+					}
+				}
+				else if(pos.x - lastPos.x >0 && pos.x<size.x)
+				{
+					if(blocks[pos.x + pos.y * size.x] == Blocks::inner_wall)
+					{
+
+						blocks[pos.x + pos.y * size.x] = Blocks::wall_edge_right;
+					}
+					else if(blocks[pos.x + pos.y * size.x] == Blocks::wall_edge_front)
+					{
+						blocks[pos.x + pos.y * size.x] =Blocks::wall_edge_corner_l;
+					}
+				}
+				 if(pos.y - lastPos.y <0 && pos.y>0)
+				{
+					blocks[pos.x + pos.y * size.x] = Blocks::wall_front_down;
+
+					if(blocks[pos.x + ((pos.y-1) * size.x)] != Blocks::floor2)
+					{
+						blocks[pos.x + ((pos.y-1) * size.x)] = Blocks::wall_front_up;
+						if(blocks[(pos.x+1) + (pos.y-2 * size.x)] == Blocks::wall_front_up || (blocks[(pos.x+1) + (pos.y-2 * size.x)] == Blocks::inner_wall && blocks[(pos.x+1) + (pos.y * size.x)] == Blocks::floor2 )) // need to check this else if case later, might create visual issues, ofcourse depending on the sequence of the function called
+								{
+									blocks[pos.x + ((pos.y-2) * size.x)] = Blocks::wall_edge_wall_right;
+									
+								}
+						if(blocks[(pos.x+1) + pos.y * size.x] ==Blocks::floor2)
+						{
+							blocks[pos.x + ((pos.y-1) * size.x)] = Blocks::wall_left_corner;
+							if(blocks[(pos.x-1) + pos.y * size.x] ==Blocks::floor2)
+							{
+								blocks[pos.x + ((pos.y-1) * size.x)] = Blocks::wall_corner;
+							}
+						}
+						else if(blocks[(pos.x-1) + pos.y * size.x] ==Blocks::floor2)
+							{
+								blocks[pos.x + ((pos.y-1) * size.x)] = Blocks::wall_right_corner;
+								
+							}
+						int i= pos.y-2;
+						while(i>=0 && blocks[pos.x + (i * size.x)] != Blocks::floor2)
+						{	
+							if(blocks[(pos.x+1) + (i * size.x)] == Blocks::wall_front_down)
+							{
+								blocks[pos.x + (i * size.x)] = Blocks::wall_edge_left;
+
+							}
+							else if(blocks[(pos.x+1) + (i * size.x)] == Blocks::wall_front_up || blocks[(pos.x+1) + (i * size.x)] ==Blocks::wall_left_corner) // need to check this else if case later, might create visual issues, ofcourse depending on the sequence of the function called
+							{
+								blocks[pos.x + (i * size.x)] = Blocks::wall_edge_wall_right;
+								
+							}
+
+							if(blocks[(pos.x-1) + (i * size.x)] == Blocks::wall_front_down)
+							{
+								blocks[pos.x + (i * size.x)] = Blocks::wall_edge_right;
+
+							}
+							// if(blocks[(pos.x+1) + (i * size.x)] == Blocks::inner_wall && blocks[(pos.x+1) + (i-1 * size.x)] == Blocks::inner_wall)
+							// {
+							// 	if(blocks[(pos.x+1) + (i-2 * size.x)] == Blocks::floor2)
+							// 	{
+							// 		blocks[pos.x + i * size.x] = Blocks::wall_edge_left;
+							// 		blocks[pos.x + (i+1) * size.x] = Blocks::wall_edge_wall_right;
+							// 	}
+							// }
+
+							if(blocks[(pos.x+1) + (i * size.x)] == Blocks::floor2 || ((blocks[(pos.x+1) + (i * size.x)] == Blocks::inner_wall ||blocks[(pos.x+1) + (i * size.x)] == Blocks::wall_front_down) && blocks[(pos.x+1) + ((i+1) * size.x)] == Blocks::floor2))
+							{
+								if(blocks[(pos.x-1) + (i * size.x)] == Blocks::floor2)
+								{
+									if(blocks[(pos.x) + ((i-1) * size.x)] != Blocks::floor2 && (blocks[(pos.x) + ((i) * size.x)] != Blocks::wall_edge_front || blocks[(pos.x) + ((i) * size.x)] != Blocks::wall_edge_corner_r || blocks[(pos.x) + ((i) * size.x)] != Blocks::wall_edge_corner_l))
+									{
+											blocks[pos.x + (i * size.x)] =Blocks::wall_edge_X_axis;
+
+									}
+									else
+									{
+										blocks[pos.x + (i * size.x)] =Blocks::wall_edge_corner_three;
+									}
+								}
+								else
+								{
+									blocks[pos.x + (i * size.x)] = Blocks::wall_edge_left;
+									if(blocks[pos.x + (i-1) * size.x] == Blocks::floor2)
+									{
+										blocks[(pos.x) + (i * size.x)] = Blocks::wall_edge_corner_r;
+									}
+								}
+							}
+							else if( blocks[(pos.x-1) + (i * size.x)] == Blocks::floor2)
+							{
+								blocks[(pos.x) + (i * size.x)] = Blocks::wall_edge_right;
+								if(blocks[pos.x + (i-1) * size.x] == Blocks::floor2)
+								{
+									blocks[(pos.x) + (i * size.x)] = Blocks::wall_edge_corner_l;
+								}
+							}
+
+							if(blocks[(pos.x+1) + (i * size.x)] == Blocks::wall_front_up || (blocks[(pos.x+1) + (i * size.x)] == Blocks::inner_wall && (blocks[(pos.x+1) + ((i+2) * size.x)] == Blocks::floor2 && blocks[(pos.x+1) + ((i+1) * size.x)] != Blocks::floor2)))
+							{
+								blocks[(pos.x) + (i * size.x)] =Blocks::wall_edge_wall_right;
+							}
+							if(blocks[(pos.x-1) + (i * size.x)] == Blocks::wall_front_up || (blocks[(pos.x-1) + (i * size.x)] == Blocks::inner_wall && (blocks[(pos.x-1) + ((i+2) * size.x)] == Blocks::floor2 && blocks[(pos.x-1) + ((i+1) * size.x)] != Blocks::floor2)))
+							{
+								if(blocks[(pos.x) + (i * size.x)] == Blocks::wall_edge_wall_right)
+								{
+
+									blocks[(pos.x) + (i * size.x)] = Blocks::wall_edge_wall_both;
+								}
+								else{
+
+									blocks[(pos.x) + (i * size.x)] =Blocks::wall_edge_wall_left;
+								}
+								
+							}
+							i--;
+						}
+					}
+				}
+				else if(pos.y - lastPos.y ==1 && pos.y< size.y)
+				{
+					
+					if(blocks[pos.x + ((pos.y) * size.x)] ==Blocks::wall_edge_left)
+					{
+						blocks[pos.x + ((pos.y) * size.x)] = Blocks::wall_edge_corner_r;
+					}
+					if(blocks[pos.x + ((pos.y) * size.x)] ==Blocks::inner_wall)
+					{
+						blocks[pos.x + ((pos.y) * size.x)] = Blocks::wall_edge_front;
+					}
+				}	
+
+
 			}
 			return;
 		}

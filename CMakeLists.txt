@@ -23,8 +23,14 @@ if(MSVC)
 add_compile_options(/arch:AVX2) #make sure SIMD optimizations take place
 endif()
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g")
+add_compile_options(-msse -msse2 -msse3 -mssse3 -msse4.1 -msse4.2 -mavx -mavx2)
+endif()
 project(mygame)
 
+set(CMAKE_BUILD_TYPE Debug)
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)

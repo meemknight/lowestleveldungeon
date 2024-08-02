@@ -6,16 +6,16 @@
 #include <stdlib.h>
 
 
-namespace Regions
-{
-	enum
-	{
-		normal=0,
-		hard,
-		demons
-	};
-}
-using regionType = int;
+// namespace Regions
+// {
+// 	enum
+// 	{
+// 		normal=0,
+// 		hard,
+// 		demons
+// 	};
+// }
+// using regionType = int;
 
 
 
@@ -28,21 +28,24 @@ struct Map
 	struct region
 	{
 		 
-		regionType type = Regions::normal;
+		//regionType type = Regions::normal;
 		std::vector<glm::ivec2> tiles;
 		std::vector<glm::ivec2> edgeTiles;
 	};
 	
 	int withinMapBounds(int x, int y, int width, int height);
 	void randomNoiseMap(int density);
-	void randomNoiseFluids(int chance, int density);
 	void cellularAutomaton(int iterations);
-	void cellularAutomatonEnv();
-	uint getNeighbourTiles(std::vector<Block>& temp_blocks, int x, int y);
 	uint getNeighbourWalls(std::vector<Block>& temp_blocks, int x, int y);
 
+	void setWalls();
+
+	void randomNoiseFluids(int chance, int density);
+
+	uint getNeighbourTiles(std::vector<Block>& temp_blocks, int x, int y);
 	void getRegion(glm::ivec2 startPos);
 	void getRegionTiles(glm::ivec2 pos, glm::ivec2 lastPos, Block tileType);
+
 	void connectRegions();	
 	std::vector<glm::ivec4> findExtremeEnds(Map::region area);
 
@@ -51,6 +54,8 @@ struct Map
 
 	//=========
 	std::vector<Block> blocks;
+	std::vector<float> blocksRotation;
+	std::vector<Block> wallEdges;
 	glm::ivec2 size = {}; 
 
 	std::vector<glm::ivec2> floorTiles;

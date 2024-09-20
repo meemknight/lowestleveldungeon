@@ -13,7 +13,8 @@ void AssetsManager::loadAllAssets()
 		"",
 		RESOURCES_PATH "map/Damp Dungeon Tileset.png",
 		RESOURCES_PATH "map/map debug tileset.png",
-		RESOURCES_PATH "map/Barrel Sprite.png"
+		RESOURCES_PATH "map/Barrel Sprite.png",
+		RESOURCES_PATH "items/Item Sprites.png"
 	};
 
 	//if you see an error that means you added a sprite but forgot to add
@@ -28,6 +29,7 @@ void AssetsManager::loadAllAssets()
 		16,
 		16,
 		16,
+		32,
 	};
 
 	//if you see an error that means you added a sprite but forgot to add
@@ -43,6 +45,7 @@ void AssetsManager::loadAllAssets()
 		{7, 8},
 		{0, 1},
 		{0, 0},
+		{16,23},
 	};
 
 	//if you see an error that means you added a sprite but forgot to add

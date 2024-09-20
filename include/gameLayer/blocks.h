@@ -31,6 +31,9 @@ namespace Blocks
 		wall_edge_wall_left,
 		wall_edge_wall_both,
 		wall_edge_corner_three,
+
+		// ITEM TILES
+		pickaxe,
 		BLOCKS_COUNT
 
 	};
@@ -46,6 +49,7 @@ namespace TileSets
 		dungeonTileSet,
 		debugTileSet,
 		barrel,
+		items1,
 		TILE_SETS_COUNT
 	};
 }

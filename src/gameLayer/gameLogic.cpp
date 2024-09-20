@@ -1,5 +1,4 @@
 #include <gameLogic.h>
-#include <map.h>
 #include <imgui.h>
 #include <platform/platformInput.h>
 
@@ -8,13 +7,13 @@ bool GameLogic::init()
 {
 	density=58; iterations=8; size=100;
 	map.create(density,iterations, size);
-
+	inventory.create(40);
 
 	return true;
 }
 
 bool GameLogic::update(float deltaTime,
-	gl2d::Renderer2D &renderer,
+	gl2d::Renderer2D &renderer, glui::RendererUi &uirenderer,
 	AssetsManager &assetsManager)
 {
 	bool exitDungeon = false;
@@ -30,7 +29,6 @@ bool GameLogic::update(float deltaTime,
 	ImGui::SliderInt("Size", &size, 0, 1000);
 	if (ImGui::Button("Regenerate Map"))
 	{
-		map.clear();
 		map.create(density,iterations,size);
 	}
 	if (ImGui::Button(player.checkCollisions ? "COLLISION ON" : "COLLISION OFF"))
@@ -76,8 +74,11 @@ bool GameLogic::update(float deltaTime,
 
 	player.pos += move;
 
+	if(platform::isButtonReleased(platform::Button::I))
+	{
+		//toggle inventory
+	}
 #pragma endregion
-
 
 	player.resolveConstrains(map);
 
@@ -102,6 +103,28 @@ bool GameLogic::update(float deltaTime,
 	renderer.renderRectangle(player.getAABB(), Colors_Red);
 
 
+uirenderer.Begin(1);
+	//	uirenderer.SetAlignModeFixedSizeWidgets({100,platform::getFrameBufferSizeY() -200});
+//uirenderer.Text("", Colors_White);
+
+		//uirenderer.SetAlignModeFixedSizeWidgets({100,50});
+		uirenderer.BeginMenu("quickslots", Colors_White, {});
+		{
+			uirenderer.Text("Ther's nothing here :((", Colors_White);
+
+
+		}
+		uirenderer.EndMenu();
+
+		uirenderer.End();
+
+
+		uirenderer.renderFrame(renderer, assetsManager.font, 
+			platform::getRelMousePosition(),
+			platform::isLMousePressed(), 
+			platform::isLMouseHeld(), platform::isLMouseReleased(),
+			platform::isButtonReleased(platform::Button::Escape), 
+			platform::getTypedInput(), deltaTime);
 
 	renderer.flush();
 

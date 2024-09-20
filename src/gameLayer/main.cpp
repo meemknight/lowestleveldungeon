@@ -44,6 +44,8 @@ bool gameLogic(float deltaTime)
 	glClear(GL_COLOR_BUFFER_BIT); //clear screen
 
 	renderer.updateWindowMetrics(w, h);
+	glui::Frame f({0,0, renderer.windowW, renderer.windowH});
+auto box = glui::Box().xLeft().yBottom().xLeftPerc(0.2).yTopPerc(0.2)();
 
 #pragma endregion
 
@@ -52,9 +54,10 @@ bool gameLogic(float deltaTime)
 	{
 
 		if (!game.update(deltaTime, 
-			renderer, assetsManager))
+			renderer,uirenderer, assetsManager))
 		{
 			game.close();
+			//uirenderer.SetAlignModeFixedSizeWidgets({0,850});
 			inGame = 0;
 		}
 
@@ -66,7 +69,7 @@ bool gameLogic(float deltaTime)
 
 		uirenderer.Text("Lowest Level Dungeon XD", Colors_White);
 
-		
+		//uirenderer.SetAlignModeFixedSizeWidgets({100,platform::getFrameBufferSizeY() -200});
 		//todo (LLGD): add a nice texture here for the button.
 		if (uirenderer.Button("Play", Colors_White))
 		{

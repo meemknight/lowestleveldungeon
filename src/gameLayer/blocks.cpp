@@ -32,6 +32,9 @@ glm::ivec2 getBlockUV(Block block)
 		glm::ivec2{2,0}, // wall_edge_wall_left
 		glm::ivec2{7,7}, // wall_edge_wall_both
 		glm::ivec2{3,7}, // wall_edge_corner_three
+
+		/* ITEMS UV*/
+		glm::ivec2{2,10}, //pickaxe
 	};
 
 	//if you see an error that means you added a block but forgot to add
@@ -72,6 +75,7 @@ int getTileSetIndex(Block block)
 		TileSets::dungeonTileSet,
 		TileSets::none,
 		TileSets::dungeonTileSet,
+		TileSets::items1,
 	};
 
 	//if you see an error that means you added a block but forgot to add
@@ -112,6 +116,9 @@ int isBlockColidable(Block block)
 		1,
 		1,
 		1,
+
+		// ITEMS
+		0,
 	};
 
 	//if you see an error that means you added a block but forgot to add

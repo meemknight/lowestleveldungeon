@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.1)
 project(gl2d)
-
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx2 -mfma -O3 -std=c++20 -std=gnu++17")
 add_library(gl2d)
 target_sources(gl2d PRIVATE "src/gl2d.cpp" "src/gl2dParticleSystem.cpp")
 target_include_directories(gl2d PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")

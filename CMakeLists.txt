@@ -22,11 +22,11 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE) #link time optimization
 if(MSVC) 
 add_compile_options(/arch:AVX2) #make sure SIMD optimizations take place
 endif()
-
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx2 -mfma -O3 -std=c++20 -std=gnu++17")
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g")
-add_compile_options(-msse -msse2 -msse3 -mssse3 -msse4.1 -msse4.2 -mavx -mavx2)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx2 -mfma -O3 -std=c++20 -std=gnu++17")
 endif()
 project(mygame)
 

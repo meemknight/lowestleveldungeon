@@ -2,14 +2,6 @@
 
 gl2d::Color4f colorArray[] = {Colors_Red, Colors_Green, Colors_Blue, Colors_White, Colors_Yellow, Colors_Magenta, Colors_Turqoise, Colors_Orange,Colors_Purple, Colors_Gray};
 
-void Map::clear()
-{
-	blocks.clear();
-	visitedTile.clear();
-	wallEdges.clear();
-	blocksRotation.clear();
-	regions.clear();
-}
 void Map::create(int density, int iterations,int s)
 {
 	*this = {};
